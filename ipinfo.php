@@ -32,6 +32,11 @@ function save_ip_info() {
     $table_name = $wpdb->prefix . 'ip_info';
     $ip = $_SERVER['REMOTE_ADDR'];
 
+    $existing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE ip = %s", $ip ) );
+    if ( $existing !== null ) {
+        return;
+    }
+
     $response = file_get_contents("https://ipinfo.io/$ip?token=eeb8e42eb47124");
     $data = json_decode($response);
 
