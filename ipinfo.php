@@ -1,9 +1,12 @@
 <?php
 /*
 Plugin Name: Salva indirizzo IP e informazioni
+Plugin URI: https://wpaper.it
+Description: Salva l'indirizzo IP e le informazioni dell'utente che visita il sito
+Version: 0.2   
 */
 
-// Attivazione plugin - Creazione tabella
+// Attivazione plugin
 register_activation_hook( __FILE__, 'create_ip_info_table' );
 function create_ip_info_table() {
     global $wpdb;
@@ -37,17 +40,23 @@ function save_ip_info() {
         return;
     }
 
-    $response = file_get_contents("https://ipinfo.io/$ip?token=eeb8e42eb47124");
-    $data = json_decode($response);
+    $request = new WP_Http;
+    $response = $request->request( "https://ipinfo.io/$ip?token=eeb8e42eb47124" );
+    if ( is_wp_error( $response ) ) {
+        // gestisci l'errore qui
+        return;
+    }
+
+    $data = json_decode( wp_remote_retrieve_body( $response ), true );
 
     $wpdb->insert(
         $table_name,
         array(
             'ip' => $ip,
-            'country' => $data->country,
-            'asn_name' => $data->asn->name,
-            'company_name' => $data->company->name,
-            'company_domain' => $data->company->domain
+            'country' => $data['country'],
+            'asn_name' => $data['asn']['name'],
+            'company_name' => $data['company']['name'],
+            'company_domain' => $data['company']['domain']
         )
     );
 }
