@@ -32,7 +32,7 @@ function save_ip_info() {
     $table_name = $wpdb->prefix . 'ip_info';
     $ip = $_SERVER['REMOTE_ADDR'];
 
-    $existing = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE ip = %s", $ip ) );
+    $existing = $wpdb->get_var( $wpdb->prepare( "SELECT ip FROM $table_name WHERE ip = %s LIMIT 1", $ip ) );
     if ( $existing !== null ) {
         return;
     }
